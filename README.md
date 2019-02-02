@@ -1,2 +1,2 @@
-# inatba
+# INATBA
 INATBA Charter signature
