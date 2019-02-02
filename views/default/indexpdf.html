@@ -1,0 +1,115 @@
+{{extend 'layout.html'}}
+
+{{block head}}
+  <style>
+  
+  main {
+    max-width: 500px;
+    margin: 0 auto; }
+  
+  article {
+    margin: 0.5rem 0; }
+  
+  @supports (display: grid) {
+    main {
+      max-width: none;
+      margin: 0; }
+    article {
+      margin: 0; }
+    main {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      grid-gap: 1rem; } }
+  
+  article {
+    display: flex;
+    flex-flow: column; }
+  
+  article > img {
+    width: 200px;
+    height: 100px;
+    order: -1;
+    align-self: center; }
+  
+  article {
+    padding: 1rem; }
+  
+  article > h1 {
+    font-size: 1.5em;
+  }
+  
+  article > ul {
+    margin: 0 0 1rem; }
+  
+  article > p {
+    margin: 0.25em 1rem 1rem; }
+  
+  main {
+    font-family: Avenir, Roboto, Helvetica, san-serif;
+    font-size: 80%; }
+
+  main {
+    border: 1px solid rgb(209, 209, 209);
+    padding: 10px;
+    border-radius: 0.7rem; }
+
+  .myBottomButtonRow {
+    padding: 10px;
+    border-radius: 0.7rem;
+  }
+  
+  article {
+    border: 1px solid black;
+    border-radius: 0.7rem; }
+  
+  article > button {
+    margin-top: auto;
+    background: #004494;
+    color: white;
+    padding: 0.5rem;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 1.2rem; }
+  
+  </style>
+{{end}}
+
+<a href="/">
+  <div class="myHeader">
+    <img src="{{=URL('static','images/eu-logo.svg')}}" class="myLogoImg">    
+    <h1 class="myLogoText">INATBA</h1>
+  </div>
+</a>
+  
+<h1>International Association for Trusted Blockchain Applications</h1>
+<h2>VISION</h2>
+
+<ol>
+
+<li>Blockchain and other distributed ledger technologies (DLT) have the potential to enable more decentralised, trusted, user-centric digital services, and stimulate new business models benefiting society and the economy.
+</li>
+
+<li>These technologies will create opportunities to enhance services and processes in both the public and private sectors, notably preserving data integrity, providing better control of data by citizens and organisations, reducing fraud, improving recordkeeping, access, transparency and auditability, within and across borders.
+</li>
+
+<li>The European Union supports blockchain and DLT technologies and their integration in public and private sector activities with a view to bringing tangible benefits to companies and citizens alike.  
+</li>
+
+
+</ol>
+
+  
+<main class="deals">
+
+
+  <article class="signature_box">
+
+      <img src="{{=URL('static','images/eu-logo.svg')}}" alt="Signature">
+      <button>Display</button>
+    </article>
+
+</main>    
+
+
+{{block footer}} <!-- this is default footer -->
+{{end}}

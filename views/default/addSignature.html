@@ -1,0 +1,100 @@
+{{extend 'layout.html'}}
+
+{{block head}}
+<script src="{{=URL('static','js/jSignature.min.js')}}"></script>
+<style>
+
+
+#signature {
+		border: 2px dotted #808080;
+	}
+
+</style>
+{{end}}
+
+
+<div class="myPopup" id="myPopup">
+  <div id="signature" ></div>
+</div>
+
+<div class="myButtonRow">
+  <a class="btn btn-primary m-1" href="{{=URL('index')}}">Cancel</a>
+
+  <button class="btn btn-primary m-1" onclick="clearSignatureBox()">Clear</button>
+  <button class="btn btn-primary m-1" onclick="sendSignatureToServer()">OK</button>
+</div>
+
+  
+
+<form id="myform" action="{{=URL('storeAndDisplayResult')}}" method="POST">
+  <input type="hidden" name="the_image" id="the_image" />
+</form>
+
+
+{{block footer}} <!-- this is default footer -->
+<script>
+  $(document).ready(function() {
+    jsigWidth = $("#signature").width()
+    jsigHeight = (Math.min(jsigWidth, window.innerHeight)/5)*4
+
+    $("#signature").jSignature({"width": jsigWidth, "height": jsigHeight, "background-color": '#f0f0f0', 'signatureLine': true})
+  })
+
+function clearSignatureBox () {
+  $("#signature").jSignature("reset");
+}
+
+function resizeBase64Img(imgbase64, width, height) {
+    var canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    var context = canvas.getContext("2d");
+    var deferred = $.Deferred();
+    $("<img/>").attr("src", imgbase64).on("load",function() {
+        context.scale(width/this.width,  height/this.height);
+        context.drawImage(this, 0, 0);
+        deferred.resolve($("<img/>").attr("src", canvas.toDataURL("image/png", 0.8)));
+    });
+    return deferred.promise();
+}
+
+function sendSignatureToServer () {
+
+  // Get the canvas data in SVG format
+  var datapair = $("#signature").jSignature("getData", "svgbase64")
+
+  // Set the input field to the image data (reduced)
+  $("#the_image").val("data:" + datapair[0] + "," + datapair[1])
+
+  // Submit the hidden form
+  $("#myform").submit()
+
+}
+
+function sendSignatureToServer_old () {
+
+// Get the canvas data in SVG format
+var datapair = $("#signature").jSignature("getData", "image")
+
+var theImage = ""
+resizeBase64Img("data:" + datapair[0] + "," + datapair[1], 400, 300).then(function(newImg){
+  theImage = newImg.attr("src")
+
+  // Set the input field to the image data (reduced)
+  $("#the_image").val(theImage)
+//  $("#the_image").val("data:" + datapair[0] + "," + datapair[1])
+
+  // Submit the hidden form
+  $("#myform").submit()
+
+
+//    $("body").append(newImg);
+});
+
+
+}
+
+
+</script>
+{{end}}
+
