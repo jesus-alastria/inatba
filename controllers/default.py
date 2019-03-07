@@ -1,8 +1,14 @@
 # -*- coding: utf-8 -*-
 import os
-from gluon.debug import dbg
+#from gluon.debug import dbg
 #    dbg.set_trace()
 
+
+# Main page
+def indexold():
+    s = db(db.signature.signer_id == db.auth_user.id).select(db.signature.imagesvg, db.auth_user.organization, db.auth_user.first_name, db.auth_user.last_name)
+
+    return dict(records=s)
 
 # Main page
 def index():
@@ -10,111 +16,130 @@ def index():
 
     return dict(records=s)
 
+def test():
+    result = mail.send('hesus.ruiz@gmail.com', 'Message subject', 'Plain text body of the message')
+    return result
+
+
 def getversion():
     import sys
     return sys.version_info[0]
 
 # Convert document to a PDF file and register in Alastria
-@auth.requires_login()
-def topdf():
+@auth.requires_membership('registrar')
+def registerinblockchain():
 
     # Get all the records from the database
     s = db(db.signature.signer_id == db.auth_user.id).select(db.signature.id, db.signature.imagesvg, db.auth_user.organization, db.auth_user.first_name, db.auth_user.last_name)
 
-    # Check if the user requested the extension ".pdf"
-    if request.extension == "pdf":
+    from weasyprint import HTML
 
-        from weasyprint import HTML
+    # Get the html template to render for this controller/action
+    filename = '%s/%s.html' % (request.controller,request.function)
 
-        # Get the html template to render for this controller/action
-        filename = '%s/%s.html' % (request.controller,request.function)
+    # Render the template to html with the current variables
+    the_html=response.render(filename, dict(records=s))
 
-        # Render the template to html with the current variables
-        the_html=response.render(filename, dict(records=s))
+    # Create the file name with the time stamp on it
+    import time
+    timestr = time.strftime("%Y%m%d-%H%M%S")
+    htmlName = "inatba-" + timestr + ".html"
 
-        # Create the file name with the time stamp on it
-        import time
-        timestr = time.strftime("%Y%m%d-%H%M%S")
-        htmlName = "inatba-" + timestr + ".html"
-
-        # Write the pdf to a file
-        pdfPath = os.path.join(request.folder,'static', 'files', htmlName)
+    # Write the pdf to a file
+    pdfPath = os.path.join(request.folder,'static', 'files', htmlName)
 #        HTML(string=the_html).write_pdf(pdfPath)
-        with open(pdfPath, "wb") as f:
-            f.write(the_html.encode())
+    with open(pdfPath, "wb") as f:
+        f.write(the_html.encode())
 
 #        dbg.set_trace()
 
-        # Read the file again as binary
-        with open(pdfPath, "rb") as f:
-            the_pdf = f.read()
+    # Read the file again as binary
+    with open(pdfPath, "rb") as f:
+        the_pdf = f.read()
 
-        # Calculate the hash of the file
-        import hashlib
-        the_hash = hashlib.sha256(the_pdf).hexdigest()
 
-        # Register the hash in Alastria
-        result, txhash, receipt = __notarizeInAlastria(the_hash)
+    # Calculate the hash of the file
+    import hashlib
+    the_hash = hashlib.sha256(the_pdf).hexdigest()
 
-        # Set the response type
-        response.headers['Content-Type'] = 'text/html'
+    # Register the hash in Alastria
+    result, txhash, receipt = __notarizeInAlastria(the_hash)
 
-        response.view = "default/resultofregistration.html"
+    # Insert a record with the blockchain transaction in the database
+    uniqueID = db.regalastria.insert(
+        blocknumber=receipt.blockNumber, 
+        blockhash=receipt.blockHash.hex(),
+        dochash=the_hash,
+        txhash=txhash, 
+        charter=the_pdf)
 
-        # Redirect to the result page
-        return dict(result=result, txhash=txhash, receipt=receipt, pdfName=htmlName)
-    else:
-        return dict(records=s)
+
+    # Set the response type
+    response.headers['Content-Type'] = 'text/html'
+
+    response.view = "default/resultofregistration.html"
+
+    # Redirect to the result page
+    return dict(result=result, txhash=txhash, receipt=receipt, pdfName=htmlName)
+
 
 # Convert document to a PDF file and register in Alastria
-@auth.requires_login()
-def topdf_old_was_working():
+@auth.requires_membership('registrar')
+def registerinblockchainold():
 
     # Get all the records from the database
-    s = db().select(db.signature.id, db.signature.imagesvg, db.auth_user.organization, db.auth_user.first_name, db.auth_user.last_name)
+    s = db(db.signature.signer_id == db.auth_user.id).select(db.signature.id, db.signature.imagesvg, db.auth_user.organization, db.auth_user.first_name, db.auth_user.last_name)
 
-    # Check if the user requested the extension ".pdf"
-    if request.extension == "pdf":
+    from weasyprint import HTML
 
-        from weasyprint import HTML
+    # Get the html template to render for this controller/action
+    filename = '%s/%s.html' % (request.controller,request.function)
 
-        # Get the html template to render for this controller/action
-        filename = '%s/%s.html' % (request.controller,request.function)
+    # Render the template to html with the current variables
+    the_html=response.render(filename, dict(records=s))
 
-        # Render the template to html with the current variables
-        the_html=response.render(filename, dict(records=s))
+    # Create the file name with the time stamp on it
+    import time
+    timestr = time.strftime("%Y%m%d-%H%M%S")
+    htmlName = "inatba-" + timestr + ".html"
 
-        # Create the file name with the time stamp on it
-        import time
-        timestr = time.strftime("%Y%m%d-%H%M%S")
-        pdfName = "inatba-" + timestr + ".pdf"
-
-        # Write the pdf to a file
-        pdfPath = os.path.join(request.folder,'static', 'files', pdfName)
-        HTML(string=the_html).write_pdf(pdfPath)
+    # Write the pdf to a file
+    pdfPath = os.path.join(request.folder,'static', 'files', htmlName)
+#        HTML(string=the_html).write_pdf(pdfPath)
+    with open(pdfPath, "wb") as f:
+        f.write(the_html.encode())
 
 #        dbg.set_trace()
 
-        # Read the file again as binary
-        with open(pdfPath, "rb") as f:
-            the_pdf = f.read()
+    # Read the file again as binary
+    with open(pdfPath, "rb") as f:
+        the_pdf = f.read()
 
-        # Calculate the hash of the file
-        import hashlib
-        the_hash = hashlib.sha256(the_pdf).hexdigest()
 
-        # Register the hash in Alastria
-        result, txhash, receipt = __notarizeInAlastria(documentHash=the_hash)
+    # Calculate the hash of the file
+    import hashlib
+    the_hash = hashlib.sha256(the_pdf).hexdigest()
 
-        # Set the response type
-        response.headers['Content-Type'] = 'text/html'
+    # Register the hash in Alastria
+    result, txhash, receipt = __notarizeInAlastria(the_hash)
 
-        response.view = "default/resultofregistration.html"
+    # Insert a record with the blockchain transaction in the database
+    uniqueID = db.regalastria.insert(
+        blocknumber=receipt.blockNumber, 
+        blockhash=receipt.blockHash.hex(),
+        dochash=the_hash,
+        txhash=txhash, 
+        charter=the_pdf)
 
-        # Redirect to the result page
-        return dict(result=result, txhash=txhash, receipt=receipt, pdfName=pdfName)
-    else:
-        return dict(records=s)
+
+    # Set the response type
+    response.headers['Content-Type'] = 'text/html'
+
+    response.view = "default/resultofregistration.html"
+
+    # Redirect to the result page
+    return dict(result=result, txhash=txhash, receipt=receipt, pdfName=htmlName)
+
 
 
 
@@ -203,17 +228,16 @@ def storeAndDisplayResult():
     # with open(fullFileName, "wb") as f:
     #     f.write(imgDecoded)
 
-    session.flash = "Signature has been inserted!"
-    redirect(URL("index"))
+    return dict(result=result, txhash=txhash, receipt=receipt)
 
 
 # ---- Smart Grid (example) -----
-@auth.requires_login()
+@auth.requires_membership('admin')
 def grid():
     response.view = 'generic.html' # use a generic view
     tablename = request.args(0)
     if not tablename in db.tables: raise HTTP(403)
-    grid = SQLFORM.smartgrid(db[tablename], args=[tablename], deletable=False, editable=False)
+    grid = SQLFORM.smartgrid(db[tablename], args=[tablename], deletable=True, editable=True)
     return dict(grid=grid)
 
 
@@ -235,4 +259,54 @@ def user():
     also notice there is http://..../[app]/appadmin/manage/auth to allow administrator to manage users
     """
     return dict(form=auth())
+
+# Convert document to a PDF file and register in Alastria
+@auth.requires_membership('registrar')
+def topdf_old_was_working():
+
+    # Get all the records from the database
+    s = db().select(db.signature.id, db.signature.imagesvg, db.auth_user.organization, db.auth_user.first_name, db.auth_user.last_name)
+
+    # Check if the user requested the extension ".pdf"
+    if request.extension == "pdf":
+
+        from weasyprint import HTML
+
+        # Get the html template to render for this controller/action
+        filename = '%s/%s.html' % (request.controller,request.function)
+
+        # Render the template to html with the current variables
+        the_html=response.render(filename, dict(records=s))
+
+        # Create the file name with the time stamp on it
+        import time
+        timestr = time.strftime("%Y%m%d-%H%M%S")
+        pdfName = "inatba-" + timestr + ".pdf"
+
+        # Write the pdf to a file
+        pdfPath = os.path.join(request.folder,'static', 'files', pdfName)
+        HTML(string=the_html).write_pdf(pdfPath)
+
+#        dbg.set_trace()
+
+        # Read the file again as binary
+        with open(pdfPath, "rb") as f:
+            the_pdf = f.read()
+
+        # Calculate the hash of the file
+        import hashlib
+        the_hash = hashlib.sha256(the_pdf).hexdigest()
+
+        # Register the hash in Alastria
+        result, txhash, receipt = __notarizeInAlastria(documentHash=the_hash)
+
+        # Set the response type
+        response.headers['Content-Type'] = 'text/html'
+
+        response.view = "default/resultofregistration.html"
+
+        # Redirect to the result page
+        return dict(result=result, txhash=txhash, receipt=receipt, pdfName=pdfName)
+    else:
+        return dict(records=s)
 

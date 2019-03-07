@@ -6,6 +6,7 @@
 # -------------------------------------------------------------------------
 from gluon.contrib.appconfig import AppConfig
 from gluon.tools import Auth
+import datetime
 
 # -------------------------------------------------------------------------
 # This scaffolding model makes your app work on Google App Engine too
@@ -104,7 +105,8 @@ auth.define_tables(username=False, signature=False)
 # configure email
 # -------------------------------------------------------------------------
 mail = auth.settings.mailer
-mail.settings.server = 'logging' if request.is_local else configuration.get('smtp.server')
+mail.settings.server =  configuration.get('smtp.server')
+#mail.settings.server = 'logging' if request.is_local else configuration.get('smtp.server')
 mail.settings.sender = configuration.get('smtp.sender')
 mail.settings.login = configuration.get('smtp.login')
 mail.settings.tls = configuration.get('smtp.tls') or False
@@ -155,16 +157,28 @@ if configuration.get('scheduler.enabled'):
 # >>> for row in rows: print row.id, row.myfield
 # -------------------------------------------------------------------------
 
-
 db.define_table(
     'signature',
     Field('name'),
     Field('signer_id',db.auth_user),
     Field('txhash', 'string'),
-    Field('created_on', 'datetime', default=request.now, update=request.now, writable=False),
+    Field('created_on', 'datetime',requires=IS_DATETIME(timezone=datetime.timezone(datetime.timedelta(hours=0))), default=request.now, update=request.now, writable=False),
     Field('created_by', 'reference auth_user', default=auth.user_id, update=auth.user_id, writable=False),
     Field('imagesvg', 'text'),
     format = '%(name)s')
+
+db.define_table(
+    'regalastria',
+    Field('name'),
+    Field('blocknumber', 'integer'),
+    Field('blockhash', 'string'),
+    Field('dochash', 'string'),
+    Field('txhash', 'string'),
+    Field('created_on', 'datetime',requires=IS_DATETIME(timezone=datetime.timezone(datetime.timedelta(hours=0))), default=request.now, update=request.now, writable=False),
+    Field('created_by', 'reference auth_user', default=auth.user_id, update=auth.user_id, writable=False),
+    Field('charter', 'blob'),
+    format = '%(name)s')
+
 
 
 # -------------------------------------------------------------------------

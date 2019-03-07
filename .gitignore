@@ -1,6 +1,14 @@
 .DS_Store
+cache/
+databases/
+errors/
+sessions/
+static/files/
 *.pyc
 *.table
 *.log
 *.sqlite
 *.pdf
+.vscode/launch.json
+.vscode/settings.json
+.vscode/sftp.json
