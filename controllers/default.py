@@ -5,13 +5,86 @@ import os
 
 
 # Main page
-def indexold():
-    s = db(db.signature.signer_id == db.auth_user.id).select(db.signature.imagesvg, db.auth_user.organization, db.auth_user.first_name, db.auth_user.last_name)
+def index():
 
-    return dict(records=s)
+    return dict(records="hola")
+
+# Calculates the hash of the document
+@auth.requires_membership('registrar')
+def calculateHash():
+
+    # Get the html template to render for this controller/action
+    templateName = '%s/plain.html' % (request.controller)
+
+    # Render the template to html with the current variables
+    the_html=response.render(templateName, dict(records="hola"))
+
+    # Create the file name where to store the rendered html with the time stamp on it
+    import time
+    timestr = time.strftime("%Y%m%d-%H%M%S")
+    htmlName = "inatba-" + timestr + ".html"
+
+    # Create the simple file name
+    htmlName = "inatba.html"
+
+    # Write the HTML to a file
+    htmlPath = os.path.join(request.folder,'static', 'files', htmlName)
+    with open(htmlPath, "wb") as f:
+        f.write(the_html.encode())
+
+#        dbg.set_trace()
+
+    # Read the file again as binary
+    with open(htmlPath, "rb") as f:
+        the_html = f.read()
+
+
+    # Calculate the hash of the file
+    import hashlib
+    the_hash = hashlib.sha3_256(the_html).hexdigest()
+
+    # Write the hash to the corresponding file
+    # Build the file name where we store the hash
+    hashFilePath = os.path.join(request.folder,'static', 'files', 'inatbahash.txt')
+    with open(hashFilePath, "wb") as f:
+        f.write(the_hash.encode())
+
+
+    # Return the hash
+    return the_hash
+
+# Get the hash of already done
+def gethashed():
+
+    # Build the file name where we store the hash
+    hashFilePath = os.path.join(request.folder,'static', 'files', 'inatbahash.txt')
+
+    # Initialize the hash, just in case the file does not exist
+    the_hash = ""
+
+    # Read the file if it exists
+    if os.path.exists(hashFilePath):
+        with open(hashFilePath, "r") as f:
+            the_hash = f.read()
+
+    return dict(the_hash=the_hash)
+
+# Erase the hash
+@auth.requires_membership('registrar')
+def reset():
+
+    # Build the file name where we store the hash
+    hashFilePath = os.path.join(request.folder,'static', 'files', 'inatbahash.txt')
+
+    # Write empty string to the file
+    with open(hashFilePath, "wb") as f:
+        f.write("".encode())
+
+    return "OK"
+
 
 # Main page
-def index():
+def indexold():
     s = db(db.signature.signer_id == db.auth_user.id).select(db.signature.imagesvg, db.auth_user.organization, db.auth_user.first_name, db.auth_user.last_name)
 
     return dict(records=s)
@@ -46,21 +119,21 @@ def registerinblockchain():
     htmlName = "inatba-" + timestr + ".html"
 
     # Write the pdf to a file
-    pdfPath = os.path.join(request.folder,'static', 'files', htmlName)
-#        HTML(string=the_html).write_pdf(pdfPath)
-    with open(pdfPath, "wb") as f:
+    htmlPath = os.path.join(request.folder,'static', 'files', htmlName)
+#        HTML(string=the_html).write_pdf(htmlPath)
+    with open(htmlPath, "wb") as f:
         f.write(the_html.encode())
 
 #        dbg.set_trace()
 
     # Read the file again as binary
-    with open(pdfPath, "rb") as f:
-        the_pdf = f.read()
+    with open(htmlPath, "rb") as f:
+        the_hash = f.read()
 
 
     # Calculate the hash of the file
     import hashlib
-    the_hash = hashlib.sha256(the_pdf).hexdigest()
+    the_hash = hashlib.sha256(the_hash).hexdigest()
 
     # Register the hash in Alastria
     result, txhash, receipt = __notarizeInAlastria(the_hash)
@@ -71,7 +144,7 @@ def registerinblockchain():
         blockhash=receipt.blockHash.hex(),
         dochash=the_hash,
         txhash=txhash, 
-        charter=the_pdf)
+        charter=the_hash)
 
 
     # Set the response type
@@ -104,21 +177,21 @@ def registerinblockchainold():
     htmlName = "inatba-" + timestr + ".html"
 
     # Write the pdf to a file
-    pdfPath = os.path.join(request.folder,'static', 'files', htmlName)
-#        HTML(string=the_html).write_pdf(pdfPath)
-    with open(pdfPath, "wb") as f:
+    htmlPath = os.path.join(request.folder,'static', 'files', htmlName)
+#        HTML(string=the_html).write_pdf(htmlPath)
+    with open(htmlPath, "wb") as f:
         f.write(the_html.encode())
 
 #        dbg.set_trace()
 
     # Read the file again as binary
-    with open(pdfPath, "rb") as f:
-        the_pdf = f.read()
+    with open(htmlPath, "rb") as f:
+        the_hash = f.read()
 
 
     # Calculate the hash of the file
     import hashlib
-    the_hash = hashlib.sha256(the_pdf).hexdigest()
+    the_hash = hashlib.sha256(the_hash).hexdigest()
 
     # Register the hash in Alastria
     result, txhash, receipt = __notarizeInAlastria(the_hash)
@@ -129,7 +202,7 @@ def registerinblockchainold():
         blockhash=receipt.blockHash.hex(),
         dochash=the_hash,
         txhash=txhash, 
-        charter=the_pdf)
+        charter=the_hash)
 
 
     # Set the response type
@@ -284,18 +357,18 @@ def topdf_old_was_working():
         pdfName = "inatba-" + timestr + ".pdf"
 
         # Write the pdf to a file
-        pdfPath = os.path.join(request.folder,'static', 'files', pdfName)
-        HTML(string=the_html).write_pdf(pdfPath)
+        htmlPath = os.path.join(request.folder,'static', 'files', pdfName)
+        HTML(string=the_html).write_pdf(htmlPath)
 
 #        dbg.set_trace()
 
         # Read the file again as binary
-        with open(pdfPath, "rb") as f:
-            the_pdf = f.read()
+        with open(htmlPath, "rb") as f:
+            the_hash = f.read()
 
         # Calculate the hash of the file
         import hashlib
-        the_hash = hashlib.sha256(the_pdf).hexdigest()
+        the_hash = hashlib.sha256(the_hash).hexdigest()
 
         # Register the hash in Alastria
         result, txhash, receipt = __notarizeInAlastria(documentHash=the_hash)

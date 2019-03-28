@@ -95,8 +95,9 @@ auth = Auth(db, host_names=configuration.get('host.names'))
 auth.settings.extra_fields['auth_user'] = [
     Field('created_on', 'datetime', default=request.now, update=request.now, writable=False),
     Field('organization'),
-    Field('adress'),
-    Field('city')
+    Field('address'),
+    Field('city'),
+    Field('website')
     
 ]
 auth.define_tables(username=False, signature=False)
@@ -124,8 +125,9 @@ auth.settings.reset_password_requires_verification = False
 # -------------------------------------------------------------------------
 response.meta.author = configuration.get('app.author')
 response.meta.description = configuration.get('app.description')
-response.meta.keywords = configuration.get('app.keywords')
-response.meta.generator = configuration.get('app.generator')
+# response.meta.keywords = configuration.get('app.keywords')
+response.meta.keywords = "INATBA"
+# response.meta.generator = configuration.get('app.generator')
 response.show_toolbar = configuration.get('app.toolbar')
 
 # -------------------------------------------------------------------------
