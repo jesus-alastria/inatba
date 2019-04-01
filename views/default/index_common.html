@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<!--[if (gt IE 9)|!(IE)]><!-->
+<html class="no-js" lang="{{=T.accepted_language or 'en'}}">
+<!--<![endif]-->
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge{{=not request.is_local and ',chrome=1' or ''}}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>INATBA</title>
+  <meta name="application-name" content="INATBA">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <!-- include stylesheets -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+  <link rel="stylesheet" href="{{=URL('static','css/bootstrap.min.css')}}" />
+  <link rel="stylesheet" href="{{=URL('static','css/web2py-bootstrap4.css')}}" />
+  <link rel="shortcut icon" href="{{=URL('static','images/favicon.ico')}}" type="image/x-icon">
+  <link rel="apple-touch-icon" href="{{=URL('static','images/eu-logo.png.png')}}">
+  <link rel="stylesheet" href="{{=URL('static','css/css-loader.css')}}">
+  <link rel="stylesheet" href="{{=URL('static','css/ispinner.css')}}">
+
+  <link rel="icon" href="{{=URL('static','images/eu-logo.png')}}">
+
+  <!-- All JavaScript at the bottom, except for Modernizr which enables
+         HTML5 elements & feature detects -->
+  <script src="{{=URL('static','js/modernizr-2.8.3.min.js')}}"></script>
+
+
+  <style>
+    #signature {
+      border: 2px dotted;
+    }
+
+
+    .btn-primary {
+      background-color: #58c2f1;
+    }
+
+    html {
+      font-family: Helvetica;
+    }
+
+    body {
+      font-size: 100%;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    h2 {
+      text-align: center;
+    }
+
+    h3 {
+      text-align: center;
+    }
+
+    ol {
+      font-size: 1.3em;
+    }
+
+    li {
+      margin-bottom: 10px;
+    }
+
+
+    #the_hash {
+      font-size: 2.6vw;
+      text-align: center;
+    }
+
+
+    #bigButton {
+      display: block;
+      margin: auto;
+    }
+
+    #bigButtonText {
+      text-align: center;
+    }
+
+
+    .loader {
+      color: #fff;
+      position: fixed;
+      box-sizing: border-box;
+      left: -9999px;
+      top: -9999px;
+      width: 0;
+      height: 0;
+      overflow: hidden;
+      z-index: 999999
+    }
+
+    .loader:after,
+    .loader:before {
+      box-sizing: border-box;
+      display: none
+    }
+
+    .loader.is-active {
+      background-color: rgba(0, 0, 0, .85);
+      width: 100%;
+      height: 100%;
+      left: 0;
+      top: 0
+    }
+
+    .loader.is-active:after,
+    .loader.is-active:before {
+      display: block
+    }
+
+    @keyframes rotation {
+      0% {
+        transform: rotate(0)
+      }
+
+      to {
+        transform: rotate(359deg)
+      }
+    }
+
+    @keyframes blink {
+      0% {
+        opacity: .5
+      }
+
+      to {
+        opacity: 1
+      }
+    }
+
+    .loader[data-text]:before {
+      position: fixed;
+      left: 0;
+      top: 50%;
+      color: currentColor;
+      font-family: Helvetica, Arial, sans-serif;
+      text-align: center;
+      width: 100%;
+      font-size: 14px
+    }
+
+    .loader[data-text=""]:before {
+      content: "Loading"
+    }
+
+    .loader[data-text]:not([data-text=""]):before {
+      content: attr(data-text)
+    }
+
+    .loader[data-text][data-blink]:before {
+      animation: blink 1s linear infinite alternate
+    }
+
+    .loader-default[data-text]:before {
+      top: calc(50% - 63px)
+    }
+
+    .loader-default:after {
+      content: "";
+      position: fixed;
+      width: 48px;
+      height: 48px;
+      border: 8px solid #fff;
+      border-left-color: transparent;
+      border-radius: 50%;
+      top: calc(50% - 24px);
+      left: calc(50% - 24px);
+      animation: rotation 1s linear infinite
+    }
+
+    .loader-default[data-half]:after {
+      border-right-color: transparent
+    }
+
+    .loader-default[data-inverse]:after {
+      animation-direction: reverse
+    }
+  </style>
+
+  {{include 'web2py_ajax.html'}}
+  <!-- this includes jquery.js, calendar.js/.css and web2py.js -->
+  <script src="{{=URL('static','js/jSignature.min.js')}}"></script>
+
+</head>
+
+<body>
+  <!-- Navbar ======================================= -->
+  {{if not auth.has_membership(auth.user_id, role="registrar"):}}
+
+  <nav class="navbar sticky-top navbar-dark " style="background-color: #333;">
+
+    <a id="juan" class="navbar-brand" href="{{=URL(request.application, request.controller, 'index')}}">
+      <img src="{{=URL('static','images/INATBAlogoMini.png')}}" height="30" class="d-inline-block align-bottom" alt="">
+      International Association for Trusted Applications
+    </a>
+
+    <a id="pepe" style="color: black" class="btn btn-primary m-1" href="javascript:openHashButton();">Prepare to
+      hash</a>
+  </nav>
+
+  {{else:}}
+
+  <nav class="navbar navbar-light navbar-expand-md  navbar-dark justify-content-center" style="background-color: #333;">
+
+    <a class="navbar-brand" href="{{=URL(request.application, request.controller, 'index')}}">
+      <img src="{{=URL('static','images/INATBAlogoMini.png')}}" height="30" class="d-inline-block align-bottom" alt="">
+      International Association for Trusted Applications
+    </a>
+
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown"
+      aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="navbar-collapse collapse w-100" id="navbarNavDropdown">
+      {{if 'auth' in globals():}}
+      <ul class="nav navbar-nav ml-auto w-100 justify-content-end">
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true"
+            aria-expanded="false">
+            {{if auth.user:}}{{=auth.user.first_name}}{{else:}}LOGIN{{pass}}
+          </a>
+          <div class="dropdown-menu dropdown-menu-right">
+            {{if auth.user:}}
+            <a class="dropdown-item" href="{{=URL('default','user/profile')}}">{{=T('Profile')}}</a>
+            {{if 'change_password' not in auth.settings.actions_disabled:}}
+            <a class="dropdown-item" href="{{=URL('default','user/change_password')}}">{{=T('Change Password')}}</a>
+            {{pass}}
+            <a class="dropdown-item" href="{{=URL('default','user/logout')}}">{{=T('Logout')}}</a>
+            {{else:}}
+            <a class="dropdown-item" href="{{=URL('default','user/login')}}">{{=T('Login')}}</a>
+            {{if 'register' not in auth.settings.actions_disabled:}}
+            <a class="dropdown-item" href="{{=URL('default','user/register')}}">{{=T('Sign up')}}</a>
+            {{pass}}
+            {{if 'retrieve_password' not in auth.settings.actions_disabled:}}
+            <a class="dropdown-item" href="{{=URL('default','user/retrieve_password')}}">{{=T('Lost Password')}}</a>
+            {{pass}}
+            {{pass}}
+          </div>
+        </li>
+      </ul>
+      {{pass}}
+    </div>
+  </nav>
+
+  {{pass}}
+
+  <!-- Main ========================================= -->
+  <!-- Begin page content -->
+  <div id="mainContainer" class="container-fluid main-container">
+
+    <div id="pageCharterText">
+      <div class="loader loader-default" data-text="Please wait ..." id="the_loader"></div>
+
+      <div>
+        <canvas id="the-canvas1" style="border:1px solid black"></canvas>
+      </div>
+      <div>
+        <canvas id="the-canvas2" style="border:1px solid black"></canvas>
+      </div>
+      <div>
+        <canvas id="the-canvas3" style="border:1px solid black"></canvas>
+      </div>
+      <div>
+        <canvas id="the-canvas4" style="border:1px solid black"></canvas>
+      </div>
+      <div>
+        <canvas id="the-canvas5" style="border:1px solid black"></canvas>
+      </div>
+
+      <!-- Navbar ======================================= -->
+      <nav class="navbar navbar-light navbar-expand-md  navbar-dark justify-content-center"
+        style="background-color: #333;">
+
+        <a class="navbar-brand" href="{{=URL(request.application, request.controller, 'index')}}">
+          <img src="{{=URL('static','images/INATBAlogoMini.png')}}" height="30" class="d-inline-block align-bottom"
+            alt="">
+          International Association for Trusted Applications
+        </a>
+
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown"
+          aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="navbar-collapse collapse w-100" id="navbarNavDropdown">
+          {{if 'auth' in globals():}}
+          <ul class="nav navbar-nav ml-auto w-100 justify-content-end">
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true"
+                aria-expanded="false">
+                {{if auth.user:}}{{=auth.user.first_name}}{{else:}}LOGIN{{pass}}
+              </a>
+              <div class="dropdown-menu dropdown-menu-right">
+                {{if auth.user:}}
+                <a class="dropdown-item" href="{{=URL('default','user/profile')}}">{{=T('Profile')}}</a>
+                {{if 'change_password' not in auth.settings.actions_disabled:}}
+                <a class="dropdown-item" href="{{=URL('default','user/change_password')}}">{{=T('Change Password')}}</a>
+                {{pass}}
+                <a class="dropdown-item" href="{{=URL('default','user/logout')}}">{{=T('Logout')}}</a>
+                {{else:}}
+                <a class="dropdown-item" href="{{=URL('default','user/login')}}">{{=T('Login')}}</a>
+                {{if 'register' not in auth.settings.actions_disabled:}}
+                <a class="dropdown-item" href="{{=URL('default','user/register')}}">{{=T('Sign up')}}</a>
+                {{pass}}
+                {{if 'retrieve_password' not in auth.settings.actions_disabled:}}
+                <a class="dropdown-item" href="{{=URL('default','user/retrieve_password')}}">{{=T('Lost Password')}}</a>
+                {{pass}}
+                {{pass}}
+              </div>
+            </li>
+          </ul>
+          {{pass}}
+        </div>
+      </nav>
+
+      <div id="screenHeight"></div>
+
+    </div>
+
+
+    <div id="pageHashButton" style="display: none">
+
+      <h1 style="padding-bottom: 150px"></h1>
+
+      <a id="bigButton" href="javascript:openHashResult();"
+        style="background-color: #004494; margin: 0 auto 5px auto; box-shadow: 0 0 5px #a1a1a1; border-radius:5px;padding: 20px"
+        class="btn btn-primary col-lg-8" aria-pressed="true">
+
+        <div class="loader loader-default" data-text="Please wait ..." id="the_loader2"></div>
+
+        <h1 id="bigButtonText">Calculate Hash</h1>
+
+      </a>
+
+
+    </div>
+
+    <div id="pageHashResult" style="display: none">
+
+      <h3 style="padding-top: 80px; padding-bottom: 30px">The hash (SHA3-256) of</h3>
+      <a href="{{=URL('static','files/INATBAJointDeclarationofSupport.pdf')}}">
+        <h1 id="the_document">INATBA Joint Declaration of Support</h1>
+      </a>
+      <h3 style="padding-top: 30px; padding-bottom: 20px">is:</h3>
+      <div id="the_hash"></div>
+
+    </div>
+
+  </div>
+
+
+  </div>
+
+
+  <!-- The javascript =============================== -->
+
+  <script src="{{=URL('static','js/bootstrap.bundle.min.js')}}"></script>
+  <script src="{{=URL('static','js/web2py-bootstrap4.js')}}"></script>
+  <script src="{{=URL('static','js/pdf.js')}}"></script>
+
+
+
+
+  <script id="script">
+
+    var url = "{{=URL('static','files/INATBAJointDeclarationofSupport.pdf')}}";
+
+    var pdfDoc = null,
+      pageNum = 1,
+      pageRendering = false,
+      pageNumPending = null,
+      scale = 1,
+      numPages = 0;
+
+
+    canvas1 = document.getElementById('the-canvas1')
+    canvas2 = document.getElementById('the-canvas2')
+    canvas3 = document.getElementById('the-canvas3')
+    canvas4 = document.getElementById('the-canvas4')
+    canvas5 = document.getElementById('the-canvas5')
+
+
+
+    function renderPageCtx(num, canvas) {
+      // Using promise to fetch the page
+      pdfDoc.getPage(num).then(function (page) {
+
+        var desiredWidth = window.innerWidth / 100 * 98;
+        var viewport1 = page.getViewport({ scale: 1, });
+        var scale = desiredWidth / viewport1.width;
+        var viewport = page.getViewport({ scale: scale, });
+
+        //var viewport = page.getViewport({ scale: scale, });
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+
+        // Render PDF page into canvas context
+        var renderContext = {
+          canvasContext: canvas.getContext('2d'),
+          viewport: viewport,
+        };
+        page.render(renderContext);
+
+      });
+
+    }
+
+
+    /**
+     * Asynchronously downloads PDF.
+     */
+    var loadingTask = pdfjsLib.getDocument(url);
+    loadingTask.promise.then(function (pdfDoc_) {
+      pdfDoc = pdfDoc_;
+      numPages = pdfDoc.numPages;
+
+      // Initial/first page rendering
+      renderPageCtx(1, canvas1);
+      renderPageCtx(2, canvas2);
+      renderPageCtx(3, canvas3);
+      renderPageCtx(4, canvas4);
+      renderPageCtx(5, canvas5);
+
+    });
+  </script>
+
+
+

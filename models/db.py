@@ -160,28 +160,16 @@ if configuration.get('scheduler.enabled'):
 # -------------------------------------------------------------------------
 
 db.define_table(
-    'signature',
+    'sync',
     Field('name'),
-    Field('signer_id',db.auth_user),
-    Field('txhash', 'string'),
-    Field('created_on', 'datetime',requires=IS_DATETIME(timezone=datetime.timezone(datetime.timedelta(hours=0))), default=request.now, update=request.now, writable=False),
-    Field('created_by', 'reference auth_user', default=auth.user_id, update=auth.user_id, writable=False),
-    Field('imagesvg', 'text'),
+    Field('status', 'json'),
     format = '%(name)s')
 
 db.define_table(
-    'regalastria',
+    'txhash',
     Field('name'),
-    Field('blocknumber', 'integer'),
-    Field('blockhash', 'string'),
-    Field('dochash', 'string'),
-    Field('txhash', 'string'),
-    Field('created_on', 'datetime',requires=IS_DATETIME(timezone=datetime.timezone(datetime.timedelta(hours=0))), default=request.now, update=request.now, writable=False),
-    Field('created_by', 'reference auth_user', default=auth.user_id, update=auth.user_id, writable=False),
-    Field('charter', 'blob'),
+    Field('the_hash'),
     format = '%(name)s')
-
-
 
 # -------------------------------------------------------------------------
 # after defining tables, uncomment below to enable auditing

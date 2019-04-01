@@ -150,11 +150,11 @@
   <body>
     <!-- Navbar ======================================= -->
 
-      <nav class="navbar sticky-top navbar-dark " style="background-color: #004494;">
+      <nav class="navbar sticky-top navbar-dark " style="background-color: #333;">
         
         <a class="navbar-brand" href="{{=URL(request.application, request.controller, 'index')}}">
-          <img src="{{=URL('static','images/eu-logo.svg')}}" height="30" class="d-inline-block align-bottom" alt="">
-          INATBA
+          <img src="{{=URL('static','images/INATBAlogoMini.png')}}" height="30" class="d-inline-block align-bottom" alt="">
+          International Association for Trusted Applications
         </a>
 
       </nav>
@@ -167,17 +167,16 @@
           
       <div id="pageHashResult">
       
-          <h1 style="padding-bottom: 80px">International Association for Trusted Blockchain Applications</h1>
 
           {{if (the_hash == ""):}}
             <h3>Waiting ...</h3>
           {{else:}}
-            <h3>The hash (SHA3-256) is:</h3>
-            <div id="the_hash">{{=the_hash}}</div>
-            <h3>And the document is:</h3>
-            <a href="{{=URL('static','files/inatba.html')}}">
-              <div id="the_document">INATBA Charter&Vision</div>
+            <h3 style="padding-top: 80px; padding-bottom: 30px">The hash (SHA3-256) of</h3>
+            <a href="{{=URL('static','files/INATBAJointDeclarationofSupport.pdf')}}">
+              <h1 id="the_document">INATBA Joint Declaration of Support</h1>
             </a>
+            <h3 style="padding-top: 30px; padding-bottom: 20px">is:</h3>
+            <div id="the_hash">{{=the_hash}}</div>
           {{pass}}
         
         </div>
