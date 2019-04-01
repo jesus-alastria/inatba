@@ -9,6 +9,7 @@ static/files/
 *.log
 *.sqlite
 *.pdf
+!INATBAJointDeclarationofSupport.pdf
 .vscode/launch.json
 .vscode/settings.json
 .vscode/sftp.json
